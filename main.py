@@ -1,10 +1,15 @@
 from zipfile import ZipFile
-from os import system, getlogin, makedirs, rmdir
+from os import system, getlogin, makedirs, rmdir, system
 from base64 import b64encode
 from datetime import datetime
 from colorama import *
 from tqdm import tqdm
-import json, requests, shutil
+import json, requests, shutil, ctypes
+installerVersion = 1.1
+
+def windowsBox(title, text, style):
+    return ctypes.windll.user32.MessageBoxW(0, text, title, style)
+
 print(Fore.CYAN + "Iniciando...")
 system("cls")
 
@@ -106,7 +111,7 @@ def extraerPack():
 
             newJuntaData = {"localVersion": juntaCloudVersion}
             json.dump(newJuntaData, juntaData)
-        ConsLog.logDone("Actualizado con exito.")
+        ConsLog.logDone("Datos locales | Actualizado con exito.")
         return True
     except Exception as e:
         ConsLog.error(e)
@@ -234,7 +239,23 @@ def instalacionInicial():
     return True
 
 def updateJunta():
-    return False
+    ConsLog.log(f"Iniciando actualizacion de La Junta {juntaCloudVersion}")
+    if descargarPack():
+        ConsLog.logDone("Paquete descargado :)")
+        if extraerPack():
+            ConsLog.logDone("Actualizacion terminada!")
+            ConsLog.tip("Reinicia tu Minecraft si lo tienes abierto :D")
+        else:
+            ConsLog.error("No se pudo descomprimir el paquete de la Junta, manda el error que sale arriba bro")
+            ConsLog.exitMsg()
+            return False
+    else:
+        ConsLog.error("No se pudo descargar el paquete de la Junta, manda el error que sale arriba pai")
+        ConsLog.exitMsg()
+        return False
+    
+    return True
+
 
 def ReinstalacionFull():
     ConsLog.log("Empezando a reinstalar todos los archivos.")
@@ -276,7 +297,9 @@ def init():
             if juntaLocalVersion != juntaCloudVersion:
                 print("")
                 ConsLog.warning(f"Hay una nueva version de La Junta! ({juntaCloudVersion})\nActualmente tienes la {juntaLocalVersion}")
-                updateJunta()
+                if updateJunta():
+                    ConsLog.logDone("Actualización completa.")
+                    ConsLog.exitMsg()
             else:
                 print("")
                 ConsLog.logDone("Ya tienes la ultima version de La Junta. " + juntaCloudVersion)
