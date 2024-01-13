@@ -243,8 +243,7 @@ def updateJunta():
     if descargarPack():
         ConsLog.logDone("Paquete descargado :)")
         if extraerPack():
-            ConsLog.logDone("Actualizacion terminada!")
-            ConsLog.tip("Reinicia tu Minecraft si lo tienes abierto :D")
+            ConsLog.logDone("Paquede descomprimido")
         else:
             ConsLog.error("No se pudo descomprimir el paquete de la Junta, manda el error que sale arriba bro")
             ConsLog.exitMsg()
@@ -298,7 +297,9 @@ def init():
                 print("")
                 ConsLog.warning(f"Hay una nueva version de La Junta! ({juntaCloudVersion})\nActualmente tienes la {juntaLocalVersion}")
                 if updateJunta():
+                    print("")
                     ConsLog.logDone("Actualización completa.")
+                    ConsLog.tip("Reinicia tu Minecraft si lo tienes abierto :D")
                     ConsLog.exitMsg()
             else:
                 print("")
