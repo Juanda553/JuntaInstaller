@@ -1,14 +1,16 @@
 from zipfile import ZipFile
-from os import system, getlogin, makedirs, rmdir, system
+from os import system, getlogin, makedirs, system
 from base64 import b64encode
 from datetime import datetime
 from colorama import *
 from tqdm import tqdm
-import json, requests, shutil, ctypes
-installerVersion = 1.1
+from math import ceil
+from requests import get
+from shutil import rmtree
+from psutil import virtual_memory
+import json
 
-def windowsBox(title, text, style):
-    return ctypes.windll.user32.MessageBoxW(0, text, title, style)
+installerVersion = 1.2
 
 print(Fore.CYAN + "Iniciando...")
 system("cls")
@@ -52,7 +54,7 @@ modpackDownloadDir = f"{juntaDir}/zipPackDown"
 
 # Obtener la version real actual de la Junta
 ConsLog.log("Obteniendo datos de la nube de La Junta...")
-LaJuntaAPI = requests.get("https://pastebin.com/raw/nj6RWKmF").json()
+LaJuntaAPI = get("https://pastebin.com/raw/nj6RWKmF").json()
 juntaCloudVersion = LaJuntaAPI["version"]
 newJuntaName = LaJuntaAPI["junta"]
 newIconURL = LaJuntaAPI["icon"]
@@ -67,7 +69,7 @@ def getDataURL(url):
     try:
         ConsLog.log("Descargando Imagen...")
         # Decargar imagen
-        r = requests.get(url, allow_redirects=True)
+        r = get(url, allow_redirects=True)
         open(f'{modpackDownloadDir}/icon.png', 'wb').write(r.content)
         ConsLog.logDone("Imagen descargada.")
 
@@ -119,9 +121,12 @@ def extraerPack():
 
 def makeLauncherProfile():
     try:
-        ConsLog.warning("EL COLOCAR UN VALOR INCORRECTO DE RAM, PUEDE PROVOCAR QUE TU PC LITERALMETE EXPLOTA, ASÍN QUE MUCHO CUIDADO")
-        tuRam = int(input("\nCuanta RAM tiene tu PC?\n>> "))
-        finalRam = 0
+        # ConsLog.warning("EL COLOCAR UN VALOR INCORRECTO DE RAM, PUEDE PROVOCAR QUE TU PC LITERALMETE EXPLOTA, ASÍN QUE MUCHO CUIDADO")
+        # print("")
+        # tuRam = int(input("Cuanta RAM tiene tu PC?\n>> "))
+        # finalRam = 0
+
+        tuRam = ceil(virtual_memory().total / (1024 ** 3))
 
         if tuRam <= 4:
             finalRam = 2
@@ -131,6 +136,8 @@ def makeLauncherProfile():
             finalRam = 6
         elif tuRam >= 16:
             finalRam = 12
+
+
 
         print("")
         ConsLog.log(f"Iniciando creacion del perfil de La Junta con {tuRam}GB de RAM y con {finalRam}GB de RAM dedicada al juego...")
@@ -158,7 +165,7 @@ def descargarPack():
         ConsLog.log("Iniciando descarga del paquete...")
 
         # saca la url de esa mierda
-        repDownload = requests.get(newModPack, stream=True)
+        repDownload = get(newModPack, stream=True)
 
         # si sirve el link o no
         if repDownload.status_code == 200:
@@ -201,11 +208,23 @@ def crearDotJunta():
     except Exception as e:
         ConsLog.error(e)
         return False
+    
+def controlesBackupSave():
+    return False
+
+def controlesBackupLoad():
+    return False
+
+def xaerosBackupSave():
+    return False
+
+def xaerosBackupLoad():
+    return False
 
 def instalacionInicial():
     try:
         ConsLog.log("Limpiando directorio...")
-        shutil.rmtree(juntaDir)
+        rmtree(juntaDir)
         ConsLog.logDone("Directorio limpiado")
     except:
         ConsLog.logDone("Directorio limpiado (No existia)")
@@ -260,7 +279,7 @@ def ReinstalacionFull():
     ConsLog.log("Empezando a reinstalar todos los archivos.")
 
     ConsLog.log("Eliminando directorio...")
-    shutil.rmtree(juntaDir)
+    rmtree(juntaDir)
     ConsLog.logDone("Directorio eliminado")
 
     if instalacionInicial():
