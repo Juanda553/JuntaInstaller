@@ -6,7 +6,7 @@ from colorama import *
 from tqdm import tqdm
 from math import ceil
 from requests import get
-from shutil import rmtree
+from shutil import rmtree, copytree
 from psutil import virtual_memory
 import json
 
@@ -45,23 +45,43 @@ class ConsLog:
         ya = datetime.now(); datetimeLog = f"{ya.hour}:{ya.minute}:{ya.second}"
         print(Fore.YELLOW + f'[DEV LOG] {datetimeLog} >> {xyz}')
 
-ConsLog.log("Creando instancias...")
+ConsLog.log("Creando constantes...")
 windowsUser = getlogin()
+myAuthorDir = f"C:/Users/{windowsUser}/AppData/Roaming/juanxxo"
+insDir = f"{myAuthorDir}/juntalauncher/"
+insDirSettings = f"{insDir}/settings/"
+
 juntaDir = f"C:/Users/{windowsUser}/AppData/Roaming/.jnt"
 minecraftDir = f"C:/Users/{windowsUser}/AppData/Roaming/.minecraft"
+
+#modpackDownloadDir = f"{insDir}/zipDownload/"
 modpackDownloadDir = f"{juntaDir}/zipPackDown"
 
 
 # Obtener la version real actual de la Junta
 ConsLog.log("Obteniendo datos de la nube de La Junta...")
 LaJuntaAPI = get("https://pastebin.com/raw/nj6RWKmF").json()
-juntaCloudVersion = LaJuntaAPI["version"]
-newJuntaName = LaJuntaAPI["junta"]
+
+juntaCloudVersion = LaJuntaAPI["juntaVersion"]
+newJuntaName = LaJuntaAPI["juntaName"]
 newIconURL = LaJuntaAPI["icon"]
-newModPack = LaJuntaAPI["modPack"]
+newModPack = LaJuntaAPI["modPackUpdate"]
+modPackFirst = LaJuntaAPI["modpackFirstInstall"]
 minecraftVersion = LaJuntaAPI["forgeVersion"]
 modpackName = LaJuntaAPI["modpackName"]
+
+insVersionCloud = LaJuntaAPI["installer_properties"]["installerVersion"]
+insTitleImage = LaJuntaAPI["installer_properties"]["titleImage"]
+insBgColor = LaJuntaAPI["installer_properties"]["colores"]["background"]
+insSecondColor = LaJuntaAPI["installer_properties"]["colores"]["secondary"]
+insThirdColor = LaJuntaAPI["installer_properties"]["colores"]["tres"]
+insFontMainColor = LaJuntaAPI["installer_properties"]["colores"]["fontMain"]
+insFontSecondColor = LaJuntaAPI["installer_properties"]["colores"]["fontSecondary"]
 ConsLog.logDone("Datos descargados con exito!")
+
+ConsLog.log("Verificando version del installer")
+if installerVersion != insVersionCloud:
+    ConsLog.error("Tienes una version antigua del instalador")
 
 
 #convertir imagen en una imagen leible para el launcher de Minecraft
@@ -125,8 +145,9 @@ def makeLauncherProfile():
         # print("")
         # tuRam = int(input("Cuanta RAM tiene tu PC?\n>> "))
         # finalRam = 0
-
+        ConsLog.log("Obteniendo RAM")
         tuRam = ceil(virtual_memory().total / (1024 ** 3))
+        ConsLog.logDone(f"{tuRam} GB")
 
         if tuRam <= 4:
             finalRam = 2
@@ -136,8 +157,6 @@ def makeLauncherProfile():
             finalRam = 6
         elif tuRam >= 16:
             finalRam = 12
-
-
 
         print("")
         ConsLog.log(f"Iniciando creacion del perfil de La Junta con {tuRam}GB de RAM y con {finalRam}GB de RAM dedicada al juego...")
@@ -202,6 +221,7 @@ def crearDotJunta():
         ConsLog.log("Creando directorio...")
         makedirs(juntaDir) # Crea carpeta
         makedirs(modpackDownloadDir)
+        makedirs(insDirSettings)
         ConsLog.logDone("Directorio creado.")
 
         return True
@@ -234,7 +254,7 @@ def instalacionInicial():
             if makeLauncherProfile():
                 if extraerPack():
                     print("")
-                    ConsLog.logDone(f"Instalacion terminada!\nPor favor si pusiste una cantidad de RAM incorrecta, reinicia el programa y selecciona reinstalar, para evitar que tu PC explote xD")
+                    ConsLog.logDone(f"Instalacion terminada!")
                     ConsLog.logDone(f"Listo, ya puedes abrir La Junta {juntaCloudVersion[0]}")
                     ConsLog.tip("Si tienes el launcher de Minecraft abierto, por favor reinicialo. :)")
                     ConsLog.exitMsg()
@@ -261,10 +281,15 @@ def updateJunta():
     ConsLog.log(f"Iniciando actualizacion de La Junta {juntaCloudVersion}")
     if descargarPack():
         ConsLog.logDone("Paquete descargado :)")
-        if extraerPack():
-            ConsLog.logDone("Paquede descomprimido")
-        else:
-            ConsLog.error("No se pudo descomprimir el paquete de la Junta, manda el error que sale arriba bro")
+        if makeLauncherProfile():
+            if extraerPack():
+                ConsLog.logDone("Paquede descomprimido")
+            else:
+                ConsLog.error("No se pudo descomprimir el paquete de la Junta, manda el error que sale arriba bro")
+                ConsLog.exitMsg()
+                return False
+        else: 
+            ConsLog.error("No se pudo crear el perfil del Launcher, manda el error que sale arriba bro")
             ConsLog.exitMsg()
             return False
     else:
@@ -337,8 +362,8 @@ def init():
         ConsLog.warning("No se encontró directorio de La Junta")
         instalacionInicial()
 
-
-init()
+if installerVersion == insVersionCloud:
+    init()
 
 # Que pregunte si quiere instalar o actualizar!!
 
