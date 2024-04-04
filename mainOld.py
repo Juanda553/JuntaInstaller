@@ -10,7 +10,7 @@ from shutil import rmtree, copytree
 from psutil import virtual_memory
 import json
 
-installerVersion = 1.2
+launcher_version = 1.2
 
 print(Fore.CYAN + "Iniciando...")
 system("cls")
@@ -46,13 +46,13 @@ class ConsLog:
         print(Fore.YELLOW + f'[DEV LOG] {datetimeLog} >> {xyz}')
 
 ConsLog.log("Creando constantes...")
-windowsUser = getlogin()
-myAuthorDir = f"C:/Users/{windowsUser}/AppData/Roaming/juanxxo"
+userWindows = getlogin()
+myAuthorDir = f"C:/Users/{userWindows}/AppData/Roaming/juanxxo"
 insDir = f"{myAuthorDir}/juntalauncher/"
 insDirSettings = f"{insDir}/settings/"
 
-juntaDir = f"C:/Users/{windowsUser}/AppData/Roaming/.jnt"
-minecraftDir = f"C:/Users/{windowsUser}/AppData/Roaming/.minecraft"
+juntaDir = f"C:/Users/{userWindows}/AppData/Roaming/.jnt"
+minecraftDir = f"C:/Users/{userWindows}/AppData/Roaming/.minecraft"
 
 #modpackDownloadDir = f"{insDir}/zipDownload/"
 modpackDownloadDir = f"{juntaDir}/zipPackDown"
@@ -70,17 +70,17 @@ modPackFirst = LaJuntaAPI["modpackFirstInstall"]
 minecraftVersion = LaJuntaAPI["forgeVersion"]
 modpackName = LaJuntaAPI["modpackName"]
 
-insVersionCloud = LaJuntaAPI["installer_properties"]["installerVersion"]
-insTitleImage = LaJuntaAPI["installer_properties"]["titleImage"]
-insBgColor = LaJuntaAPI["installer_properties"]["colores"]["background"]
-insSecondColor = LaJuntaAPI["installer_properties"]["colores"]["secondary"]
-insThirdColor = LaJuntaAPI["installer_properties"]["colores"]["tres"]
-insFontMainColor = LaJuntaAPI["installer_properties"]["colores"]["fontMain"]
-insFontSecondColor = LaJuntaAPI["installer_properties"]["colores"]["fontSecondary"]
+launcher_VersionCloud = LaJuntaAPI["installer_properties"]["launcherVersion"]
+launcher_TitleImage = LaJuntaAPI["installer_properties"]["titleImage"]
+launcher_BgColor = LaJuntaAPI["installer_properties"]["colores"]["background"]
+launcher_SecondColor = LaJuntaAPI["installer_properties"]["colores"]["secondary"]
+launcher_ThirdColor = LaJuntaAPI["installer_properties"]["colores"]["tres"]
+launcher_FontMainColor = LaJuntaAPI["installer_properties"]["colores"]["fontMain"]
+launcher_FontSecondColor = LaJuntaAPI["installer_properties"]["colores"]["fontSecondary"]
 ConsLog.logDone("Datos descargados con exito!")
 
 ConsLog.log("Verificando version del installer")
-if installerVersion != insVersionCloud:
+if launcher_version != launcher_VersionCloud:
     ConsLog.error("Tienes una version antigua del instalador")
 
 
@@ -316,14 +316,16 @@ def ReinstalacionFull():
 
 def init():
     try: 
+        # Buscando carpeta .jnt
         ConsLog.log("Buscando directorio de La Junta")
         with open(f"{modpackDownloadDir}/juntaData.json", "r") as tempFile:
             localJunta = json.load(tempFile)
             juntaLocalVersion = str(localJunta["localVersion"])
         ConsLog.logDone("Directorio encontrado.")
 
-        # Comrpobar temporada de la junta
+        # Comprobar temporada de la junta
         ConsLog.log("Comrpobando temporada de La Junta...")
+        
         if juntaLocalVersion[0] != juntaCloudVersion[0]:
             print("")
             ConsLog.warning(f"Hay una nueva temporada de la junta (La junta {juntaCloudVersion[0]})\nActualmente tienes instalado la temporada {juntaLocalVersion[0]}")
@@ -362,7 +364,7 @@ def init():
         ConsLog.warning("No se encontró directorio de La Junta")
         instalacionInicial()
 
-if installerVersion == insVersionCloud:
+if launcher_version == launcher_VersionCloud:
     init()
 
 # Que pregunte si quiere instalar o actualizar!!
