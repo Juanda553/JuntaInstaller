@@ -1,5 +1,5 @@
 from zipfile import ZipFile
-from os import system, getlogin, makedirs, system
+from os import system, getlogin, makedirs, system, getenv
 from base64 import b64encode
 from datetime import datetime
 from colorama import *
@@ -8,6 +8,7 @@ from math import ceil
 from requests import get
 from shutil import rmtree, copytree
 from psutil import virtual_memory
+from dotenv import load_dotenv as env
 import json
 
 launcher_version = "1.2"
@@ -54,13 +55,16 @@ insDirSettings = f"{insDir}/settings/"
 juntaDir = f"C:/Users/{userWindows}/AppData/Roaming/.jnt"
 minecraftDir = f"C:/Users/{userWindows}/AppData/Roaming/.minecraft"
 
+env()
+api_url = getenv("API")
+
 #modpackDownloadDir = f"{insDir}/zipDownload/"
 modpackDownloadDir = f"{juntaDir}/zipPackDown"
 
 
 # Obtener la version real actual de la Junta
 ConsLog.log("Obteniendo datos de la nube de La Junta...")
-LaJuntaAPI = get("https://pastebin.com/raw/nj6RWKmF").json()
+LaJuntaAPI = get(api_url).json()
 
 juntaCloudVersion = LaJuntaAPI["juntaVersion"]
 newJuntaName = LaJuntaAPI["juntaName"]
@@ -70,13 +74,14 @@ modPackFirst = LaJuntaAPI["modpackFirstInstall"]
 minecraftVersion = LaJuntaAPI["forgeVersion"]
 modpackName = LaJuntaAPI["modpackName"]
 
-launcher_VersionCloud = LaJuntaAPI["installer_properties"]["launcherVersion"]
-launcher_TitleImage = LaJuntaAPI["installer_properties"]["titleImage"]
-launcher_BgColor = LaJuntaAPI["installer_properties"]["colores"]["background"]
-launcher_SecondColor = LaJuntaAPI["installer_properties"]["colores"]["secondary"]
-launcher_ThirdColor = LaJuntaAPI["installer_properties"]["colores"]["tres"]
-launcher_FontMainColor = LaJuntaAPI["installer_properties"]["colores"]["fontMain"]
-launcher_FontSecondColor = LaJuntaAPI["installer_properties"]["colores"]["fontSecondary"]
+launcher_VersionCloud = LaJuntaAPI["launcher_properties"]["launcherVersion"]
+launcher_TitleImage = LaJuntaAPI["launcher_properties"]["titleImage"]
+launcher_bgColor1 = LaJuntaAPI["launcher_properties"]["colores"]["background1"]
+launcher_bgColor2 = LaJuntaAPI["launcher_properties"]["colores"]["background2"]
+launcher_buttonColor1 = LaJuntaAPI["launcher_properties"]["colores"]["button1"]
+launcher_buttonColor2 = LaJuntaAPI["launcher_properties"]["colores"]["button2"]
+launcher_fontColor1 = LaJuntaAPI["launcher_properties"]["colores"]["font1"]
+launcher_fontColor2 = LaJuntaAPI["launcher_properties"]["colores"]["font2"]
 ConsLog.logDone("Datos descargados con exito!")
 
 ConsLog.log("Verificando version del installer")
