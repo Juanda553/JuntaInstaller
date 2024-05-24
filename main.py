@@ -10,7 +10,7 @@ from shutil import rmtree, copytree
 from psutil import virtual_memory
 import json
 
-launcher_version = 1.2
+launcher_version = "1.2"
 
 print(Fore.CYAN + "Iniciando...")
 system("cls")
